@@ -40,6 +40,27 @@ def write_run_csv(output_dir: Path, run_index: int, rows: list[dict[str, float |
         writer.writerows(rows)
 
 
+def append_run_csv(output_dir: Path, run_index: int, rows: list[dict[str, float | int]]) -> None:
+    if not rows:
+        return
+
+    csv_path = output_dir / f"run_{run_index:02d}.csv"
+    file_exists = csv_path.exists()
+    with csv_path.open("a", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=[
+                "episode",
+                "score",
+                "shaped_reward",
+                "tau",
+            ],
+        )
+        if not file_exists:
+            writer.writeheader()
+        writer.writerows(rows)
+
+
 def write_summary(output_dir: Path, args: argparse.Namespace, final_score_windows: list[float], best_scores: list[int]) -> None:
     summary = {
         "activation": args.activation,
@@ -82,6 +103,7 @@ def run_training(args: argparse.Namespace) -> None:
         episode_scores = []
         episode_rewards = []
         run_rows = []
+        pending_rows = []
 
         for episode in range(1, args.episodes + 1):
             env.reset()
@@ -128,10 +150,13 @@ def run_training(args: argparse.Namespace) -> None:
                     "tau": round(agent.current_tau(), 6),
                 }
             )
+            pending_rows.append(run_rows[-1])
 
             if episode % args.log_every == 0:
                 score_window = episode_scores[-args.log_every :]
                 reward_window = episode_rewards[-args.log_every :]
+                append_run_csv(output_dir, run + 1, pending_rows)
+                pending_rows.clear()
                 print(
                     f"Run {run + 1} Episode {episode}, "
                     f"Avg Score ({args.log_every}): {mean(score_window):.3f}, "
@@ -143,7 +168,7 @@ def run_training(args: argparse.Namespace) -> None:
         final_avg = mean(final_window) if final_window else 0.0
         final_score_windows.append(final_avg)
         best_scores.append(max(episode_scores) if episode_scores else 0)
-        write_run_csv(output_dir, run + 1, run_rows)
+        append_run_csv(output_dir, run + 1, pending_rows)
         print(
             f"Run {run + 1} complete. Final Avg Score ({len(final_window)}): {final_avg:.3f}, "
             f"Best Episode Score: {max(episode_scores) if episode_scores else 0}"
