@@ -1,4 +1,4 @@
-# SILU Paper Reproduction
+# SILU Paper Result Reproduce 
 
 This repository is an experimental codebase focused on reproducing stochastic SZ-Tetris learning with shallow neural networks. The goal is to rebuild the first experimental setup from the paper as closely as possible, record learning curves, and make the results reproducible.
 
