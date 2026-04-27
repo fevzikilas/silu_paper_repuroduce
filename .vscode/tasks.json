@@ -142,6 +142,28 @@
 				"results\\pre_analysis_200_ordinal460"
 			],
 			"isBackground": false
+		},
+		{
+			"label": "pre-analysis-200-threshold460-rerun",
+			"type": "shell",
+			"command": ".venv\\Scripts\\python.exe",
+			"args": [
+				"-u",
+				"train.py",
+				"--activation",
+				"dsilu",
+				"--encoding",
+				"threshold460",
+				"--lr",
+				"0.001",
+				"--episodes",
+				"200",
+				"--log-every",
+				"50",
+				"--output-dir",
+				"results\\pre_analysis_200_threshold460_rerun"
+			],
+			"isBackground": false
 		}
 	]
 }
