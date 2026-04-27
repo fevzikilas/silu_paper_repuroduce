@@ -257,13 +257,3 @@ In short benchmarks so far, `threshold460` appears stronger than the other teste
 
 The other experiments from the paper are not yet implemented here in full. In practical terms, that means this repository currently documents and reproduces the first shallow-network result, while the `10 x 10` Tetris setting and the Atari deep Sarsa($\lambda$) experiments remain future extensions.
 
-## Why This README Exists
-
-This is not a product repository. It is an experimental reproduction repository. Because of that, the purpose of this README is clarity rather than presentation:
-
-- to explain which paper idea is being reconstructed
-- to show which part of the code handles which responsibility
-- to make the experiment workflow explicit
-- to state honestly which parts are still under investigation
-
-The most important question in this repository is not simply whether the agent learns. The more important question is whether it learns under a representation and training setup that is faithful enough to the paper.
