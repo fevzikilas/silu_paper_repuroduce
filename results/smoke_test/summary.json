@@ -1,0 +1,19 @@
+{
+  "activation": "dsilu",
+  "lr": 0.001,
+  "episodes": 5,
+  "lambda": 0.55,
+  "gamma": 0.99,
+  "tau_start": 0.5,
+  "tau_end": 0.00025,
+  "log_every": 1,
+  "runs": 1,
+  "seed": 7,
+  "final_average_scores": [
+    0
+  ],
+  "best_episode_scores": [
+    0
+  ],
+  "mean_final_average_score": 0
+}
