@@ -45,11 +45,14 @@ class SZTetris(Environment):
         }
         self.current_piece_type = "S"
         self.total_lines_cleared = 0
+        self._legal_afterstates_cache: List[Afterstate] | None = None
+        self._afterstate_by_action_cache: dict[Action, Afterstate] | None = None
 
     def reset(self) -> np.ndarray:
         self.board.fill(0)
         self.current_piece_type = self._sample_piece()
         self.total_lines_cleared = 0
+        self._invalidate_afterstate_cache()
         return self._board_observation()
 
     def step(self, action: Action):
@@ -60,7 +63,9 @@ class SZTetris(Environment):
         self.board = afterstate.board.copy()
         self.total_lines_cleared += afterstate.lines_cleared
         self.current_piece_type = self._sample_piece()
-        done = len(self.get_legal_afterstates()) == 0
+        self._invalidate_afterstate_cache()
+        next_afterstates = self.get_legal_afterstates()
+        done = len(next_afterstates) == 0
         info = {
             "score": self.total_lines_cleared,
             "lines_cleared": afterstate.lines_cleared,
@@ -69,6 +74,9 @@ class SZTetris(Environment):
         return self._board_observation(), afterstate.reward, done, info
 
     def get_legal_afterstates(self) -> List[Afterstate]:
+        if self._legal_afterstates_cache is not None:
+            return self._legal_afterstates_cache
+
         afterstates: List[Afterstate] = []
         for rotation, piece in enumerate(self.pieces[self.current_piece_type]):
             max_x = self.width - piece.shape[1]
@@ -91,13 +99,19 @@ class SZTetris(Environment):
                         reward=reward,
                     )
                 )
+        self._legal_afterstates_cache = afterstates
+        self._afterstate_by_action_cache = {afterstate.action: afterstate for afterstate in afterstates}
         return afterstates
 
     def simulate_action(self, action: Action) -> Afterstate | None:
-        for afterstate in self.get_legal_afterstates():
-            if afterstate.action == action:
-                return afterstate
-        return None
+        self.get_legal_afterstates()
+        if self._afterstate_by_action_cache is None:
+            return None
+        return self._afterstate_by_action_cache.get(action)
+
+    def _invalidate_afterstate_cache(self) -> None:
+        self._legal_afterstates_cache = None
+        self._afterstate_by_action_cache = None
 
     def _sample_piece(self) -> str:
         return str(self.rng.choice(["S", "Z"]))

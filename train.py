@@ -88,6 +88,10 @@ def run_training(args: argparse.Namespace) -> None:
     best_scores = []
 
     for run in range(args.runs):
+        run_csv_path = output_dir / f"run_{run + 1:02d}.csv"
+        if run_csv_path.exists():
+            run_csv_path.unlink()
+
         seed = None if args.seed is None else args.seed + run
         env = SZTetris(seed=seed, encoding=args.encoding)
         model = ShallowNetwork(activation=args.activation)

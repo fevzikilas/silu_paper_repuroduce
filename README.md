@@ -253,7 +253,11 @@ The `summary.json` file stores the experiment configuration and summary performa
 
 This repository provides a working research scaffold for reproducing the paper's first SZ-Tetris experiment, but exact result matching has not yet been completed. In particular, the exact meaning of the `460`-dimensional binary representation still appears to be critical. For that reason, this project is organized not only to run training, but also to compare representation choices and observe which design behaves more like the paper.
 
-In short benchmarks so far, `threshold460` appears stronger than the other tested encoding candidates, so it is currently the main candidate for longer runs.
+In short benchmarks so far, `threshold460` appears stronger than the other tested encoding candidates, so it is currently the main candidate for longer runs. That preference was first supported by a stronger 2,000-episode run: with `dsilu` and `threshold460`, the setup reached a final 1,000-episode mean score of `19.869`, compared with `11.157` for the earlier schedule-fix baseline under the same 2,000-episode budget. The best episode score in that improved 2,000-episode run reached `115`.
+
+That trend continued in the longer 10,000-episode experiment. With the same `dsilu` plus `threshold460` configuration, the final 1,000-episode mean score reached `43.069`, and the best episode score reached `173`. This is a substantial improvement over the 2,000-episode result and suggests that the agent continues to benefit from longer training under the current representation.
+
+This does not yet mean the reproduction is complete, but it does indicate that the feature representation was a major bottleneck. At this point, the project has moved from "the agent is not learning well enough" to "the agent is learning meaningfully under the current setup, but it still needs to be pushed closer to the paper's reported level." 
 
 The other experiments from the paper are not yet implemented here in full. In practical terms, that means this repository currently documents and reproduces the first shallow-network result, while the `10 x 10` Tetris setting and the Atari deep Sarsa($\lambda$) experiments remain future extensions.
 
