@@ -1,9 +1,3 @@
-# SILU Paper Result Reproduce 
-
-This repository is an experimental codebase focused on reproducing stochastic SZ-Tetris learning with shallow neural networks. The goal is to rebuild the first experimental setup from the paper as closely as possible, record learning curves, and make the results reproducible.
-
-The focus of this project is not to build a general Tetris agent. The focus is specifically on the stochastic SZ-Tetris setting, where only `S` and `Z` pieces appear, and on approximating the paper's setup with a small network and TD($\lambda$)-based value learning.
-
 ## Paper Overview
 
 This repository is based on the paper "Sigmoid-Weighted Linear Units for Neural Network Function Approximation in Reinforcement Learning" by Stefan Elfwing, Eiji Uchibe, and Kenji Doya.
@@ -12,13 +6,6 @@ Paper link:
 
 - https://arxiv.org/abs/1702.03118
 - https://arxiv.org/pdf/1702.03118
-
-The paper has two main goals:
-
-- to introduce the SiLU and dSiLU activation functions for reinforcement learning function approximation
-- to show that on-policy reinforcement learning with eligibility traces and softmax action selection can be highly competitive without relying on the standard DQN recipe of experience replay plus target networks
-
-The paper validates that claim across multiple settings rather than only one benchmark. It begins with shallow-network control experiments in Tetris-like domains and then extends the study to deeper reinforcement learning experiments in Atari 2600.
 
 ## Paper Goal and Main Idea
 
@@ -85,20 +72,6 @@ That broader context matters because the paper is not only about solving SZ-Tetr
 
 At the moment, this repository is focused on the first of those experiments: stochastic SZ-Tetris. The code structure was intentionally kept modular so that the remaining experiments can be added later without rewriting the entire training pipeline.
 
-## How Is the Approach Implemented in This Codebase?
-
-The current implementation is afterstate-based. In other words, the network does not directly output an action index. Instead, the environment generates all legal placements for the current piece, extracts a feature vector for the resulting board of each placement, lets the agent evaluate those candidate afterstates, and then samples one of them using softmax.
-
-This approach was chosen because, in SZ-Tetris, what matters is the board left behind by the selected move. For that reason, the network output is not a vector of action logits, but a single scalar afterstate value.
-
-The current training pipeline works as follows:
-
-1. The environment generates all legal afterstates for the current piece.
-2. Each afterstate is converted into a `460`-dimensional feature vector.
-3. The shallow network produces a single value for that vector.
-4. The agent samples an action using softmax over those values.
-5. The environment returns a shaped reward, while episode score is tracked separately through cleared lines.
-6. The network weights are updated with TD($\lambda$) and eligibility traces.
 
 ## Project Structure
 
@@ -249,15 +222,4 @@ Each `run_XX.csv` file contains the following columns:
 
 The `summary.json` file stores the experiment configuration and summary performance values.
 
-## Current Status
-
-This repository provides a working research scaffold for reproducing the paper's first SZ-Tetris experiment, but exact result matching has not yet been completed. In particular, the exact meaning of the `460`-dimensional binary representation still appears to be critical. For that reason, this project is organized not only to run training, but also to compare representation choices and observe which design behaves more like the paper.
-
-In short benchmarks so far, `threshold460` appears stronger than the other tested encoding candidates, so it is currently the main candidate for longer runs. That preference was first supported by a stronger 2,000-episode run: with `dsilu` and `threshold460`, the setup reached a final 1,000-episode mean score of `19.869`, compared with `11.157` for the earlier schedule-fix baseline under the same 2,000-episode budget. The best episode score in that improved 2,000-episode run reached `115`.
-
-That trend continued in the longer 10,000-episode experiment. With the same `dsilu` plus `threshold460` configuration, the final 1,000-episode mean score reached `43.069`, and the best episode score reached `173`. This is a substantial improvement over the 2,000-episode result and suggests that the agent continues to benefit from longer training under the current representation.
-
-This does not yet mean the reproduction is complete, but it does indicate that the feature representation was a major bottleneck. At this point, the project has moved from "the agent is not learning well enough" to "the agent is learning meaningfully under the current setup, but it still needs to be pushed closer to the paper's reported level." 
-
-The other experiments from the paper are not yet implemented here in full. In practical terms, that means this repository currently documents and reproduces the first shallow-network result, while the `10 x 10` Tetris setting and the Atari deep Sarsa($\lambda$) experiments remain future extensions.
 
